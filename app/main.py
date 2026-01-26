@@ -10,45 +10,32 @@ from textual.timer import Timer
 from app.commands import run_command
 
 
-def resource_path(relative_path: str) -> Path:
+def get_css_path() -> str:
     """
-    Get absolute path to resource (works for normal runs + PyInstaller EXE).
+    Returns a CSS path that works in:
+    - normal python runs
+    - PyInstaller onefile EXE runs
     """
     if hasattr(sys, "_MEIPASS"):
-        # PyInstaller temp folder
-        base_path = Path(sys._MEIPASS)
-    else:
-        # Normal project folder
-        base_path = Path(__file__).parent
+        # Running inside PyInstaller bundle
+        base = Path(sys._MEIPASS)
+        return str(base / "styles.tcss")
 
-    return base_path / relative_path
+    # Normal dev mode
+    return str(Path(__file__).with_name("styles.tcss"))
 
 
 class PanthaTerminal(App):
     TITLE = "Pantha Terminal"
     SUB_TITLE = "Neon Purple Terminal UI"
 
+    # IMPORTANT: CSS must be set here (Textual reads it on startup)
+    CSS_PATH = get_css_path()
+
     def __init__(self):
         super().__init__()
-
-        # Force CSS path to work in both dev + EXE
-        self.css_file = resource_path("styles.tcss")
-
         self.glow_state = 0
         self.glow_timer: Timer | None = None
-
-    def on_mount(self) -> None:
-        # Load CSS manually (fixes EXE crash)
-        self.load_css(self.css_file)
-
-        self.output.write("[bold bright_magenta]Welcome to Pantha Terminal.[/]")
-        self.output.write("[magenta]Type 'help' to see available commands.[/]")
-        self.output.write("")
-        self.output.write("[dim]Tip: Press Ctrl+C to quit instantly.[/]")
-        self.output.write("")
-
-        self.glow_timer = self.set_interval(0.35, self.pulse_glow)
-        self.query_one("#command_input", Input).focus()
 
     def compose(self) -> ComposeResult:
         with Vertical(id="frame", classes="glow1"):
@@ -60,6 +47,16 @@ class PanthaTerminal(App):
             with Horizontal(id="inputbar"):
                 yield Static("Pantha >", id="prompt")
                 yield Input(placeholder="Type a command... (help)", id="command_input")
+
+    def on_mount(self) -> None:
+        self.output.write("[bold bright_magenta]Welcome to Pantha Terminal.[/]")
+        self.output.write("[magenta]Type 'help' to see available commands.[/]")
+        self.output.write("")
+        self.output.write("[dim]Tip: Press Ctrl+C to quit instantly.[/]")
+        self.output.write("")
+
+        self.glow_timer = self.set_interval(0.35, self.pulse_glow)
+        self.query_one("#command_input", Input).focus()
 
     def pulse_glow(self) -> None:
         frame = self.query_one("#frame")
