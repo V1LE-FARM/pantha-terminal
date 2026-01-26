@@ -28,11 +28,9 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 
-; ICONS / LOOK
 SetupIconFile=..\assets\icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
-; UI
 WizardResizable=no
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
@@ -51,10 +49,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "Create a Desktop shortcut"; Flags: unchecked
 Name: "startup"; Description: "Run Pantha Terminal when Windows starts"; Flags: unchecked
+Name: "addtopath"; Description: "Add Pantha Terminal to PATH (recommended)"; Flags: unchecked
 
 [Files]
-; Install EVERYTHING from the PyInstaller output folder:
-; dist\PanthaTerminal\PanthaTerminal.exe + _internal + any extra files
+; Install the entire PyInstaller folder output (exe + _internal)
 Source: "..\dist\PanthaTerminal\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
@@ -71,8 +69,12 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
   ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"""; \
   Flags: uninsdeletevalue; Tasks: startup
 
+; Add to PATH (SYSTEM PATH because installer runs as admin)
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+  ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; \
+  Flags: preservestringtype; Tasks: addtopath
+
 [Run]
-; Launch after install
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
 
 [Code]
