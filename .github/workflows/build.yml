@@ -40,13 +40,16 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build PanthaTerminal (Windows ONEDIR + CONSOLE)
+      - name: Build PanthaTerminal (Windows ONEDIR + CONSOLE) [FIX Rich Unicode crash]
         shell: pwsh
         run: |
           pyinstaller --noconfirm --clean `
             --name "PanthaTerminal" `
             --onedir `
             --console `
+            --collect-all rich `
+            --collect-all textual `
+            --collect-submodules rich._unicode_data `
             app/main.py
 
       - name: Install Inno Setup
@@ -99,11 +102,14 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build macOS folder (PyInstaller ONEDIR)
+      - name: Build macOS folder (PyInstaller ONEDIR) [FIX Rich Unicode crash]
         run: |
           pyinstaller --noconfirm --clean \
             --name "PanthaTerminal" \
             --onedir \
+            --collect-all rich \
+            --collect-all textual \
+            --collect-submodules rich._unicode_data \
             app/main.py
 
       - name: Create DMG
