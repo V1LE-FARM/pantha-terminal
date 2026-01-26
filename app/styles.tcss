@@ -1,5 +1,5 @@
 /* ============================================================
-   PANTHA TERMINAL — PURPLE NEON THEME
+   PANTHA TERMINAL — PURPLE NEON THEME (TEXTUAL TCSS SAFE)
    app/styles.tcss
    ============================================================ */
 
@@ -33,24 +33,24 @@ Footer {
     padding: 1 2;
     margin-bottom: 1;
     color: #ff4dff;
-    background: #0d0014;
-    border: heavy #7a00ff;
+    background: #08000f;
+    border: heavy #ff4dff;
     text-style: bold;
     content-align: center middle;
 }
 
-/* Main row */
+/* Main row (NO gap in Textual — use margins instead) */
 #main_row {
     height: 1fr;
     width: 100%;
-    gap: 2;
 }
 
 /* Left panel */
 #left_panel {
     width: 34;
     padding: 1 1;
-    background: #0b0011;
+    margin-right: 1;     /* replaces gap */
+    background: #07000d;
     border: heavy #6a00ff;
 }
 
@@ -58,7 +58,7 @@ Footer {
 #right_panel {
     width: 1fr;
     padding: 1 1;
-    background: #0b0011;
+    background: #07000d;
     border: heavy #6a00ff;
 }
 
@@ -95,7 +95,7 @@ Footer {
     height: 1fr;
     padding: 1 1;
     background: #050009;
-    border: heavy #7a00ff;
+    border: heavy #a000ff;
 }
 
 /* RichLog output */
@@ -103,6 +103,12 @@ Footer {
     padding: 1 1;
     background: #050009;
     color: #f3e8ff;
+}
+
+/* Make log feel like a neon CRT */
+#log_wrap {
+    background: #050009;
+    border: heavy #a000ff;
 }
 
 /* Status line */
@@ -159,21 +165,10 @@ Scrollbar > .scrollbar--thumb:hover {
 }
 
 /* ============================================================
-   CRT SCANLINE EFFECT (FAKE)
-   Textual doesn't do true overlays, but we can fake the vibe
-   by giving panels a darker contrast and neon borders.
+   CRT / SCANLINE VIBE (Textual-safe)
+   We can't do real overlay scanlines in TCSS,
+   but we can darken + border pop for that "screen" look.
    ============================================================ */
-#left_panel, #right_panel, #log_wrap {
+#left_panel, #right_panel {
     background: #07000d;
-}
-
-/* Make the log slightly "screen-like" */
-#log_wrap {
-    border: heavy #a000ff;
-}
-
-/* More neon on banner */
-#banner {
-    border: heavy #ff4dff;
-    background: #08000f;
 }
