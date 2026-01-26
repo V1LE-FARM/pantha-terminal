@@ -89,7 +89,7 @@ jobs:
       - name: Compile Windows Installer
         shell: pwsh
         run: |
-          iscc installer\pantha_setup.iss
+          iscc /Qp installer\pantha_setup.iss
 
       - name: Upload Windows Setup
         uses: actions/upload-artifact@v4
