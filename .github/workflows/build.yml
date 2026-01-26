@@ -62,24 +62,12 @@ jobs:
       - name: Build PanthaTerminal (Windows)
         if: runner.os == 'Windows'
         run: |
-          pyinstaller --noconfirm --clean ^
-            --name "PanthaTerminal" ^
-            --onefile ^
-            --windowed ^
-            --icon "assets/icon.ico" ^
-            --add-data "app/styles.tcss;app" ^
-            --add-data "assets/icon.ico;assets" ^
-            app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --windowed --icon "assets/icon.ico" --add-data "app/styles.tcss;app" --add-data "assets/icon.ico;assets" app/main.py
 
       - name: Build PanthaTerminal (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          pyinstaller --noconfirm --clean \
-            --name "PanthaTerminal" \
-            --onefile \
-            --add-data "app/styles.tcss:app" \
-            --add-data "assets/icon.ico:assets" \
-            app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app/styles.tcss:app" --add-data "assets/icon.ico:assets" app/main.py
 
       - name: Upload PanthaTerminal build
         uses: actions/upload-artifact@v4
@@ -110,14 +98,7 @@ jobs:
 
       - name: Build PanthaTerminal.exe (for installer)
         run: |
-          pyinstaller --noconfirm --clean ^
-            --name "PanthaTerminal" ^
-            --onefile ^
-            --windowed ^
-            --icon "assets/icon.ico" ^
-            --add-data "app/styles.tcss;app" ^
-            --add-data "assets/icon.ico;assets" ^
-            app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --windowed --icon "assets/icon.ico" --add-data "app/styles.tcss;app" --add-data "assets/icon.ico;assets" app/main.py
 
       - name: Debug paths before installer
         run: |
