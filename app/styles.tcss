@@ -1,85 +1,46 @@
-/* Pantha Terminal - Purple Glow Aesthetic */
-
 Screen {
-    background: #050008;
+  background: #050008;
 }
 
 #root {
-    width: 100%;
-    height: 100%;
-    padding: 1;
-    align: center middle;
+  height: 100%;
+  width: 100%;
+  padding: 1 2;
+  border: heavy #b066ff;
+  background: #090011;
 }
 
-#main_box {
-    width: 92%;
-    height: 92%;
-    border: heavy #b100ff;
-    background: #07000d;
-    padding: 1;
+#root:focus-within {
+  border: heavy #ff4dff;
 }
 
-#header {
-    height: 3;
-    padding: 0 1;
-    background: #0b0013;
-    border: round #7a00ff;
+Header {
+  background: #090011;
+  color: #b066ff;
 }
 
-#title {
-    content-align: center middle;
-    text-style: bold;
-    color: #f1c7ff;
-}
-
-#subtitle {
-    content-align: center middle;
-    color: #c57dff;
-}
-
-#body {
-    height: 1fr;
-    padding: 1;
-    border: round #6b00ff;
-    background: #050008;
-}
-
-#ascii {
-    color: #d8a7ff;
-    text-style: bold;
-    content-align: center middle;
-    padding: 1;
+Footer {
+  background: #090011;
+  color: #b066ff;
 }
 
 #log {
-    height: 8;
-    padding: 1;
-    border: round #3a0060;
-    background: #050008;
-    color: #e6c8ff;
+  height: 1fr;
+  width: 100%;
+  padding: 1 1;
+  background: #06000c;
+  border: round #7a3cff;
 }
 
-#input_row {
-    height: 3;
-    padding: 0 1;
-    border: round #7a00ff;
-    background: #07000d;
+#input {
+  height: 3;
+  width: 100%;
+  padding: 0 1;
+  background: #090011;
+  color: #ffffff;
+  border: round #b066ff;
 }
 
-Input {
-    width: 1fr;
-    border: heavy #b100ff;
-    background: #050008;
-    color: #f4d6ff;
-}
-
-Input:focus {
-    border: heavy #ff00ff;
-}
-
-#hint {
-    height: 1;
-    color: #a96cff;
-    content-align: left middle;
-    padding-left: 1;
+#input:focus {
+  border: round #ff4dff;
 }
