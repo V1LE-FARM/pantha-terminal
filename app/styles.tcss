@@ -7,7 +7,7 @@ Screen {
   width: 100%;
   padding: 1 2;
   border: heavy #b066ff;
-  background: #090011;
+  background: #07000f;
 }
 
 #root:focus-within {
@@ -15,12 +15,12 @@ Screen {
 }
 
 Header {
-  background: #090011;
+  background: #07000f;
   color: #b066ff;
 }
 
 Footer {
-  background: #090011;
+  background: #07000f;
   color: #b066ff;
 }
 
@@ -28,7 +28,7 @@ Footer {
   height: 1fr;
   width: 100%;
   padding: 1 1;
-  background: #06000c;
+  background: #040008;
   border: round #7a3cff;
 }
 
@@ -36,7 +36,7 @@ Footer {
   height: 3;
   width: 100%;
   padding: 0 1;
-  background: #090011;
+  background: #07000f;
   color: #ffffff;
   border: round #b066ff;
 }
