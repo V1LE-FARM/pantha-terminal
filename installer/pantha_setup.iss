@@ -4,7 +4,7 @@
 #define MyAppPublisher "Pantha"
 
 [Setup]
-AppId={{A7C9A8B4-0F2A-4C5D-9E2A-1A1F9B8D9C01}
+AppId={{A7C9A8B4-0F2A-4C5D-9E2A-1A1F9B8D9C01}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -21,7 +21,10 @@ SetupIconFile=..\assets\icon.ico
 WizardStyle=modern
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
+PrivilegesRequired=admin
+
 [Files]
+; PyInstaller folder output is: dist\PanthaTerminal\PanthaTerminal.exe + libs
 Source: "..\dist\PanthaTerminal\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Tasks]
