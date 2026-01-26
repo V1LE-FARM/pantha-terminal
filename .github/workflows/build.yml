@@ -62,6 +62,12 @@ jobs:
             --add-data "app/styles.tcss;app" ^
             app/main.py
 
+      - name: Debug dist folder
+        run: |
+          echo "==== DIST CONTENTS ===="
+          dir dist
+          echo "======================="
+
       - name: Install Inno Setup
         run: |
           choco install innosetup -y
@@ -135,14 +141,17 @@ jobs:
           from PIL import Image
           ico_path = "assets/icon.ico"
           out_path = "AppDir/pantha-terminal.png"
+
           img = Image.open(ico_path)
+
           frames = []
           try:
               for i in range(img.n_frames):
                   img.seek(i)
-                  frames.append((img.size[0]*img.size[1], img.copy()))
+                  frames.append((img.size[0] * img.size[1], img.copy()))
           except Exception:
-              frames.append((img.size[0]*img.size[1], img.copy()))
+              frames.append((img.size[0] * img.size[1], img.copy()))
+
           best = sorted(frames, key=lambda x: x[0], reverse=True)[0][1].convert("RGBA")
           best = best.resize((256, 256))
           best.save(out_path, format="PNG")
