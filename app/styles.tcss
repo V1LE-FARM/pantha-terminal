@@ -1,63 +1,45 @@
 /* ============================================================
-   PANTHA TERMINAL — TEXTUAL THEME
-   Strong purple glow + scanlines + neon input/log
+   PANTHA TERMINAL — PURPLE NEON THEME
+   app/styles.tcss
    ============================================================ */
 
 Screen {
-    background: #050008;
-    color: #f5e9ff;
+    background: #07000d;
+    color: #e9d7ff;
 }
 
-/* Root container */
+/* Root layout */
 #root {
     height: 100%;
-    width: 100%;
     padding: 1 2;
-
-    border: heavy #b066ff;
-    background: #07000f;
 }
 
-/* Glow border when focused */
-#root:focus-within {
-    border: heavy #ff4dff;
-}
-
-/* ============================================================
-   Header / Footer
-   ============================================================ */
-
+/* Header / Footer */
 Header {
-    background: #07000f;
+    background: #120018;
     color: #ff4dff;
-    border-bottom: solid #b066ff;
+    border: solid #6a00ff;
 }
 
 Footer {
-    background: #07000f;
+    background: #120018;
     color: #b066ff;
-    border-top: solid #b066ff;
+    border: solid #6a00ff;
 }
 
-/* ============================================================
-   Banner (ASCII title)
-   ============================================================ */
-
+/* Banner */
 #banner {
+    height: auto;
     padding: 1 2;
     margin-bottom: 1;
-
-    border: round #b066ff;
-    background: #090012;
-
     color: #ff4dff;
+    background: #0d0014;
+    border: heavy #7a00ff;
     text-style: bold;
+    content-align: center middle;
 }
 
-/* ============================================================
-   Main Layout
-   ============================================================ */
-
+/* Main row */
 #main_row {
     height: 1fr;
     width: 100%;
@@ -66,167 +48,132 @@ Footer {
 
 /* Left panel */
 #left_panel {
-    width: 30;
-    min-width: 28;
-    height: 100%;
-
-    padding: 1 2;
-
-    border: heavy #b066ff;
-    background: #080010;
+    width: 34;
+    padding: 1 1;
+    background: #0b0011;
+    border: heavy #6a00ff;
 }
 
 /* Right panel */
 #right_panel {
     width: 1fr;
-    height: 100%;
-
-    padding: 1 2;
-
-    border: heavy #b066ff;
-    background: #080010;
+    padding: 1 1;
+    background: #0b0011;
+    border: heavy #6a00ff;
 }
 
-/* ============================================================
-   ASCII Border Style Titles
-   ============================================================ */
-
+/* Titles */
 #panel_title,
 #panel_title2,
 #output_title {
     padding: 0 1;
     margin-bottom: 1;
-
+    background: #14001f;
     color: #ff4dff;
+    border: tall #7a00ff;
     text-style: bold;
-
-    border: heavy #b066ff;
-    background: #0b0016;
 }
 
-/* Left panel text */
+/* Left panel content */
 #system_info {
+    padding: 1 1;
     margin-bottom: 1;
-    color: #f5e9ff;
+    color: #d7b8ff;
+    background: #09000f;
+    border: solid #3d0066;
 }
 
 #hotkeys {
-    color: #b066ff;
+    padding: 1 1;
+    color: #d7b8ff;
+    background: #09000f;
+    border: solid #3d0066;
 }
 
-/* ============================================================
-   Log Panel (OUTPUT)
-   ============================================================ */
-
+/* Log wrapper */
 #log_wrap {
     height: 1fr;
-    width: 100%;
-
     padding: 1 1;
-
-    /* ASCII style thick border */
-    border: heavy #b066ff;
-    background: #05000b;
+    background: #050009;
+    border: heavy #7a00ff;
 }
 
-/* The log itself */
+/* RichLog output */
 #log {
-    width: 100%;
-    height: 100%;
-
-    background: transparent;
-    color: #f5e9ff;
-
-    padding: 0 1;
+    padding: 1 1;
+    background: #050009;
+    color: #f3e8ff;
 }
 
-/* ============================================================
-   Scanlines Effect (approx)
-   Textual TCSS doesn't support gradients like CSS,
-   so we simulate scanlines using alternating borders + dark panels.
-   ============================================================ */
-
-/* A subtle "scanline" look by giving the log wrap a darker inner feel */
-#log_wrap {
-    border-title-color: #ff4dff;
-}
-
-/* ============================================================
-   Status Line
-   ============================================================ */
-
+/* Status line */
 #status_line {
-    height: 1;
-    margin-top: 1;
-    margin-bottom: 1;
-
+    height: 3;
     padding: 0 1;
-
-    border: heavy #b066ff;
-    background: #0b0016;
-
+    margin-top: 1;
+    background: #120018;
     color: #b066ff;
+    border: solid #6a00ff;
     text-style: bold;
 }
 
-/* ============================================================
-   Neon Input (command bar)
-   ============================================================ */
-
+/* Input bar */
 #command_input {
     height: 3;
+    margin-top: 1;
     padding: 0 1;
-
-    border: heavy #b066ff;
-    background: #07000f;
-
-    color: #f5e9ff;
+    background: #120018;
+    color: #ffffff;
+    border: heavy #ff4dff;
 }
 
-/* Strong neon glow when focused */
+/* Input focus glow */
 #command_input:focus {
     border: heavy #ff4dff;
-    background: #0a0014;
+    background: #180022;
+    color: #ffffff;
 }
 
-/* Placeholder styling */
-#command_input .input--placeholder {
-    color: #6a2a88;
+/* Cursor highlight */
+Input > .input--cursor {
+    background: #ff4dff;
+    color: #07000d;
 }
 
-/* ============================================================
-   Buttons (if you add them later)
-   Neon button look
-   ============================================================ */
-
-Button {
-    background: #0b0016;
-    color: #f5e9ff;
-    border: heavy #b066ff;
+/* Selection highlight */
+Input > .input--selection {
+    background: #7a00ff;
+    color: #ffffff;
 }
 
-Button:hover {
-    background: #120022;
-    border: heavy #ff4dff;
-    color: #ff4dff;
-}
-
-Button:focus {
-    border: heavy #ff4dff;
-}
-
-/* ============================================================
-   Scrollbar styling
-   ============================================================ */
-
+/* Scrollbar glow */
 Scrollbar {
-    background: #050008;
+    background: #0b0011;
 }
 
 Scrollbar > .scrollbar--thumb {
-    background: #b066ff;
+    background: #7a00ff;
 }
 
 Scrollbar > .scrollbar--thumb:hover {
     background: #ff4dff;
+}
+
+/* ============================================================
+   CRT SCANLINE EFFECT (FAKE)
+   Textual doesn't do true overlays, but we can fake the vibe
+   by giving panels a darker contrast and neon borders.
+   ============================================================ */
+#left_panel, #right_panel, #log_wrap {
+    background: #07000d;
+}
+
+/* Make the log slightly "screen-like" */
+#log_wrap {
+    border: heavy #a000ff;
+}
+
+/* More neon on banner */
+#banner {
+    border: heavy #ff4dff;
+    background: #08000f;
 }
