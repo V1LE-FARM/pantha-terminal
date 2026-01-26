@@ -33,6 +33,7 @@ jobs:
         run: |
           python -c "from app.main import PanthaTerminal; print('Pantha import OK')"
 
+
   build:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -58,21 +59,34 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build EXE (Windows)
+      - name: Build PanthaTerminal (Windows)
         if: runner.os == 'Windows'
         run: |
-          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --icon "assets/icon.ico" --add-data "app/styles.tcss;." --add-data "app;app" app/main.py
+          pyinstaller --noconfirm --clean ^
+            --name "PanthaTerminal" ^
+            --onefile ^
+            --windowed ^
+            --icon "assets/icon.ico" ^
+            --add-data "app/styles.tcss;app" ^
+            --add-data "assets/icon.ico;assets" ^
+            app/main.py
 
-      - name: Build Binary (Linux/macOS)
+      - name: Build PanthaTerminal (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app/styles.tcss:." --add-data "app:app" app/main.py
+          pyinstaller --noconfirm --clean \
+            --name "PanthaTerminal" \
+            --onefile \
+            --add-data "app/styles.tcss:app" \
+            --add-data "assets/icon.ico:assets" \
+            app/main.py
 
       - name: Upload PanthaTerminal build
         uses: actions/upload-artifact@v4
         with:
           name: PanthaTerminal-${{ runner.os }}
           path: dist/*
+
 
   setup_installer:
     name: Build PanthaSetup.exe (Windows Installer)
@@ -96,13 +110,25 @@ jobs:
 
       - name: Build PanthaTerminal.exe (for installer)
         run: |
-          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --icon "assets/icon.ico" --add-data "app/styles.tcss;." --add-data "app;app" app/main.py
+          pyinstaller --noconfirm --clean ^
+            --name "PanthaTerminal" ^
+            --onefile ^
+            --windowed ^
+            --icon "assets/icon.ico" ^
+            --add-data "app/styles.tcss;app" ^
+            --add-data "assets/icon.ico;assets" ^
+            app/main.py
 
-      - name: Debug dist folder
+      - name: Debug paths before installer
         run: |
-          echo "==== DIST CONTENTS ===="
+          echo "=== ROOT ==="
+          dir
+          echo "=== ASSETS ==="
+          dir assets
+          echo "=== DIST ==="
           dir dist
-          echo "======================="
+          echo "=== INSTALLER ==="
+          dir installer
 
       - name: Install Inno Setup
         run: |
