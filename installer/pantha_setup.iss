@@ -1,15 +1,16 @@
 #define MyAppName "Pantha Terminal"
 #define MyAppExeName "PanthaTerminal.exe"
-#define MyAppPublisher "Pantha"
+#define MyAppPublisher "V1LE-FARM"
 #define MyAppURL "https://github.com/V1LE-FARM/pantha-terminal"
 
+; Version from GitHub Actions environment (fallback if missing)
 #define MyAppVersion GetEnv("PANTHA_VERSION")
 #if MyAppVersion == ""
   #define MyAppVersion "v0.0.0"
 #endif
 
 [Setup]
-AppId={{A7C9A8B4-0F2A-4C5D-9E2A-1A1F9B8D9C01}}
+AppId={{D9C0E6A2-8E11-4C9B-9E4A-7D2A6A7F9C10}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -20,61 +21,34 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 
-; IMPORTANT: This must be inside the repo for GitHub Actions
-OutputDir=installer_output
-OutputBaseFilename=PanthaSetup-Windows-{#MyAppVersion}
+; Output EXE goes into repo folder: installer_output
+OutputDir=..\installer_output
+OutputBaseFilename=PanthaSetup-{#MyAppVersion}
 
 Compression=lzma
 SolidCompression=yes
-WizardStyle=modern
 
-SetupIconFile=assets\icon.ico
-UninstallDisplayIcon={app}\{#MyAppExeName}
-
-WizardResizable=no
-DisableProgramGroupPage=yes
+; IMPORTANT: These MUST exist
+SetupIconFile=..\assets\icon.ico
+WizardImageFile=..\assets\banner.bmp
+WizardSmallImageFile=..\assets\banner.bmp
 
 PrivilegesRequired=admin
-ArchitecturesInstallIn64BitMode=x64
-
-UsePreviousAppDir=yes
-UsePreviousGroup=yes
+DisableProgramGroupPage=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a Desktop shortcut"; Flags: unchecked
-Name: "startup"; Description: "Run Pantha Terminal when Windows starts"; Flags: unchecked
-Name: "debugshortcut"; Description: "Create a Debug shortcut (keeps console open)"; Flags: unchecked
+Name: "desktopicon"; Description: "Create a Desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
 
 [Files]
-; Install the full PyInstaller ONEDIR folder
-Source: "dist\PanthaTerminal\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+; This installs the FULL PyInstaller ONEDIR folder contents
+Source: "..\dist\PanthaTerminal\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-; Normal shortcuts
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-
-; Debug shortcut (runs via cmd.exe /k so it stays open on crash)
-Name: "{group}\{#MyAppName} (Debug)"; \
-  Filename: "{cmd}"; \
-  Parameters: "/k ""cd /d ""{app}"" && ""{app}\{#MyAppExeName}"""""; \
-  WorkingDir: "{app}"; \
-  Tasks: debugshortcut
-
-Name: "{commondesktop}\{#MyAppName} (Debug)"; \
-  Filename: "{cmd}"; \
-  Parameters: "/k ""cd /d ""{app}"" && ""{app}\{#MyAppExeName}"""""; \
-  WorkingDir: "{app}"; \
-  Tasks: debugshortcut
-
-[Registry]
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
-  ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"""; \
-  Flags: uninsdeletevalue; Tasks: startup
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
