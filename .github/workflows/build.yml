@@ -49,7 +49,7 @@ jobs:
           pip install pyinstaller
 
       - name: Build Pantha Terminal EXE
-        run: pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --icon "assets/icon.ico" --add-data "app;app" app/main.py
+        run: pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --icon "assets/icon.ico" --add-data "app/styles.tcss;." --add-data "app;app" app/main.py
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -79,7 +79,7 @@ jobs:
 
       - name: Build Pantha Terminal (Linux Binary)
         run: |
-          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app:app" app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app/styles.tcss:." --add-data "app:app" app/main.py
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -109,7 +109,7 @@ jobs:
 
       - name: Build Pantha Terminal (macOS Binary)
         run: |
-          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app:app" app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app/styles.tcss:." --add-data "app:app" app/main.py
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
