@@ -9,7 +9,6 @@ jobs:
   test:
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -34,9 +33,6 @@ jobs:
           python -c "from app.main import PanthaTerminal; print('Pantha import OK')"
 
 
-  # ==========================
-  # WINDOWS INSTALLER (EXE)
-  # ==========================
   build_windows_setup:
     name: Build Windows Setup (EXE Installer)
     runs-on: windows-latest
@@ -57,16 +53,9 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      # IMPORTANT:
-      # We build a FOLDER app (not onefile) so the installer always works.
       - name: Build PanthaTerminal (Windows folder build)
         run: |
-          pyinstaller --noconfirm --clean ^
-            --name "PanthaTerminal" ^
-            --windowed ^
-            --icon "assets/icon.ico" ^
-            --add-data "app/styles.tcss;app" ^
-            app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --windowed --icon "assets/icon.ico" --add-data "app/styles.tcss;app" app/main.py
 
       - name: Install Inno Setup
         run: |
@@ -83,11 +72,8 @@ jobs:
           path: installer_output/*
 
 
-  # ==========================
-  # LINUX INSTALLER (AppImage)
-  # ==========================
   build_linux_appimage:
-    name: Build Linux AppImage
+    name: Build Linux Setup (AppImage)
     runs-on: ubuntu-latest
     needs: test
 
@@ -108,11 +94,7 @@ jobs:
 
       - name: Build PanthaTerminal (Linux onefile)
         run: |
-          pyinstaller --noconfirm --clean \
-            --name "PanthaTerminal" \
-            --onefile \
-            --add-data "app/styles.tcss:app" \
-            app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --onefile --add-data "app/styles.tcss:app" app/main.py
 
       - name: Install AppImage requirements
         run: |
@@ -124,18 +106,15 @@ jobs:
           rm -rf AppDir
           mkdir -p AppDir/usr/bin
 
-          # Put binary into AppDir
           cp dist/PanthaTerminal AppDir/usr/bin/PanthaTerminal
           chmod +x AppDir/usr/bin/PanthaTerminal
 
-          # AppRun MUST be in root
           cat > AppDir/AppRun <<'EOF'
           #!/bin/sh
           exec "$(dirname "$0")/usr/bin/PanthaTerminal" "$@"
           EOF
           chmod +x AppDir/AppRun
 
-          # Desktop file MUST exist in root or appimagetool fails
           cat > AppDir/pantha-terminal.desktop <<'EOF'
           [Desktop Entry]
           Type=Application
@@ -147,47 +126,41 @@ jobs:
           Terminal=false
           EOF
 
-          # Convert icon.ico -> pantha-terminal.png (AppImage wants PNG)
           python - <<'PY'
-from PIL import Image
-ico_path = "assets/icon.ico"
-out_path = "AppDir/pantha-terminal.png"
+          from PIL import Image
+          ico_path = "assets/icon.ico"
+          out_path = "AppDir/pantha-terminal.png"
 
-img = Image.open(ico_path)
+          img = Image.open(ico_path)
 
-frames = []
-try:
-    for i in range(img.n_frames):
-        img.seek(i)
-        frames.append((img.size[0]*img.size[1], img.copy()))
-except Exception:
-    frames.append((img.size[0]*img.size[1], img.copy()))
+          frames = []
+          try:
+              for i in range(img.n_frames):
+                  img.seek(i)
+                  frames.append((img.size[0]*img.size[1], img.copy()))
+          except Exception:
+              frames.append((img.size[0]*img.size[1], img.copy()))
 
-best = sorted(frames, key=lambda x: x[0], reverse=True)[0][1].convert("RGBA")
-best = best.resize((256, 256))
-best.save(out_path, format="PNG")
-print("Saved icon:", out_path)
-PY
+          best = sorted(frames, key=lambda x: x[0], reverse=True)[0][1].convert("RGBA")
+          best = best.resize((256, 256))
+          best.save(out_path, format="PNG")
+          print("Saved icon:", out_path)
+          PY
 
-          # Download appimagetool
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
 
-          # Build AppImage
           ./appimagetool-x86_64.AppImage AppDir PanthaTerminal-Linux.AppImage
 
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
         with:
-          name: PanthaTerminal-Linux
+          name: PanthaSetup-Linux
           path: PanthaTerminal-Linux.AppImage
 
 
-  # ==========================
-  # macOS INSTALLER (DMG)
-  # ==========================
   build_macos_dmg:
-    name: Build macOS DMG
+    name: Build macOS Setup (DMG)
     runs-on: macos-latest
     needs: test
 
@@ -208,11 +181,7 @@ PY
 
       - name: Build PanthaTerminal (macOS app)
         run: |
-          pyinstaller --noconfirm --clean \
-            --name "PanthaTerminal" \
-            --windowed \
-            --add-data "app/styles.tcss:app" \
-            app/main.py
+          pyinstaller --noconfirm --clean --name "PanthaTerminal" --windowed --add-data "app/styles.tcss:app" app/main.py
 
       - name: Create DMG
         run: |
@@ -224,5 +193,5 @@ PY
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: PanthaTerminal-macOS
+          name: PanthaSetup-macOS
           path: PanthaTerminal-macOS.dmg
