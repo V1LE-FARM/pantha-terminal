@@ -54,7 +54,6 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      # Build as ONEFOLDER (more reliable than --onefile)
       - name: Build PanthaTerminal (Windows folder build)
         run: |
           pyinstaller --noconfirm --clean ^
@@ -118,30 +117,56 @@ jobs:
             --add-data "app/styles.tcss:app" \
             app/main.py
 
-      - name: Make AppImage
+      - name: Install AppImage requirements
         run: |
           sudo apt-get update
-          sudo apt-get install -y libfuse2
+          sudo apt-get install -y libfuse2 wget
 
+      - name: Make AppImage
+        run: |
           mkdir -p AppDir/usr/bin
-          cp dist/PanthaTerminal AppDir/usr/bin/PanthaTerminal
 
-          mkdir -p AppDir/usr/share/applications
-          cat > AppDir/usr/share/applications/pantha-terminal.desktop <<EOF
+          # Put binary in AppDir
+          cp dist/PanthaTerminal AppDir/usr/bin/PanthaTerminal
+          chmod +x AppDir/usr/bin/PanthaTerminal
+
+          # AppRun (required in ROOT)
+          cat > AppDir/AppRun <<'EOF'
+          #!/bin/sh
+          exec "$(dirname "$0")/usr/bin/PanthaTerminal" "$@"
+          EOF
+          chmod +x AppDir/AppRun
+
+          # Desktop file MUST be in ROOT of AppDir
+          cat > AppDir/pantha-terminal.desktop <<'EOF'
           [Desktop Entry]
+          Type=Application
           Name=Pantha Terminal
           Exec=PanthaTerminal
-          Type=Application
+          Icon=pantha-terminal
           Categories=Utility;
           Terminal=false
           EOF
 
-          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-          cp assets/icon.ico AppDir/usr/share/icons/hicolor/256x256/apps/pantha-terminal.ico || true
+          # Icon in ROOT (png preferred)
+          # We don't have a png, so we create a dummy fallback icon if needed
+          # If you later add assets/icon.png, it will use it automatically.
+          if [ -f assets/icon.png ]; then
+            cp assets/icon.png AppDir/pantha-terminal.png
+          else
+            # create tiny placeholder png so appimagetool doesn't complain
+            python - <<'PY'
+from PIL import Image
+img = Image.new("RGBA",(256,256),(128,0,255,255))
+img.save("AppDir/pantha-terminal.png")
+PY
+          fi
 
+          # Download appimagetool
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
 
+          # Build
           ./appimagetool-x86_64.AppImage AppDir PanthaTerminal-Linux.AppImage
 
       - name: Upload Linux AppImage
