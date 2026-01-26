@@ -1,11 +1,7 @@
-name: Pantha Terminal CI + Installers
+name: Pantha Terminal CI + Builds + Setups
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*.*.*"
   pull_request:
   workflow_dispatch:
 
@@ -13,6 +9,7 @@ jobs:
   test:
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -36,8 +33,7 @@ jobs:
         run: |
           python -c "from app.main import PanthaTerminal; print('Pantha import OK')"
 
-
-  build_windows_setup:
+  setup_windows:
     name: Build Windows Setup (EXE Installer)
     runs-on: windows-latest
     needs: test
@@ -49,17 +45,12 @@ jobs:
           fetch-depth: 0
 
       - name: Set version (tag or fallback)
-        shell: powershell
+        shell: pwsh
         run: |
-          $tag = "v0.0.0"
-          try {
-            $found = git describe --tags --abbrev=0 2>$null
-            if ($LASTEXITCODE -eq 0 -and $found) {
-              $tag = $found.Trim()
-            }
-          } catch {}
-          echo "PANTHA_VERSION=$tag" >> $env:GITHUB_ENV
+          $tag = (git describe --tags --abbrev=0 2>$null)
+          if (-not $tag) { $tag = "v0.0.0" }
           echo "Using version: $tag"
+          echo "PANTHA_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -72,154 +63,45 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build PanthaTerminal (Windows folder build)
+      - name: Build PanthaTerminal (Windows folder build for installer)
         run: |
           pyinstaller --noconfirm --clean ^
             --name "PanthaTerminal" ^
             --windowed ^
             --icon "assets/icon.ico" ^
             --add-data "app/styles.tcss;app" ^
+            --add-data "app;app" ^
             app/main.py
 
-      - name: Install Inno Setup
+      - name: Debug dist folder
+        shell: pwsh
         run: |
-          choco install innosetup -y
+          echo "==== DIST CONTENTS ===="
+          Get-ChildItem -Recurse dist
+          echo "======================="
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
 
       - name: Compile Windows Installer
-        env:
-          PANTHA_VERSION: ${{ env.PANTHA_VERSION }}
+        shell: pwsh
         run: |
           iscc installer\pantha_setup.iss
 
       - name: Upload Windows Setup
         uses: actions/upload-artifact@v4
         with:
-          name: PanthaSetup-Windows-${{ env.PANTHA_VERSION }}
+          name: PanthaSetup-Windows
           path: installer_output/*
 
-
-  build_linux_appimage:
+  setup_linux:
     name: Build Linux Setup (AppImage)
     runs-on: ubuntu-latest
     needs: test
 
     steps:
-      - name: Checkout repo (full history for tags)
+      - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set version (tag or fallback)
-        run: |
-          tag="v0.0.0"
-          found=$(git describe --tags --abbrev=0 2>/dev/null || true)
-          if [ -n "$found" ]; then
-            tag="$found"
-          fi
-          echo "PANTHA_VERSION=$tag" >> $GITHUB_ENV
-          echo "Using version: $tag"
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install deps + PyInstaller + Pillow
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller pillow
-
-      - name: Build PanthaTerminal (Linux onefile)
-        run: |
-          pyinstaller --noconfirm --clean \
-            --name "PanthaTerminal" \
-            --onefile \
-            --add-data "app/styles.tcss:app" \
-            app/main.py
-
-      - name: Install AppImage requirements
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libfuse2 wget
-
-      - name: Make AppImage
-        run: |
-          rm -rf AppDir
-          mkdir -p AppDir/usr/bin
-
-          cp dist/PanthaTerminal AppDir/usr/bin/PanthaTerminal
-          chmod +x AppDir/usr/bin/PanthaTerminal
-
-          cat > AppDir/AppRun <<'EOF'
-          #!/bin/sh
-          exec "$(dirname "$0")/usr/bin/PanthaTerminal" "$@"
-          EOF
-          chmod +x AppDir/AppRun
-
-          cat > AppDir/pantha-terminal.desktop <<'EOF'
-          [Desktop Entry]
-          Type=Application
-          Name=Pantha Terminal
-          Comment=Purple glowing terminal
-          Exec=PanthaTerminal
-          Icon=pantha-terminal
-          Categories=Utility;TerminalEmulator;
-          Terminal=false
-          EOF
-
-          python - <<'PY'
-          from PIL import Image
-          ico_path = "assets/icon.ico"
-          out_path = "AppDir/pantha-terminal.png"
-
-          img = Image.open(ico_path)
-          frames = []
-          try:
-              for i in range(img.n_frames):
-                  img.seek(i)
-                  frames.append((img.size[0] * img.size[1], img.copy()))
-          except Exception:
-              frames.append((img.size[0] * img.size[1], img.copy()))
-
-          best = sorted(frames, key=lambda x: x[0], reverse=True)[0][1].convert("RGBA")
-          best = best.resize((256, 256))
-          best.save(out_path, format="PNG")
-          print("Saved icon:", out_path)
-          PY
-
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
-
-          ./appimagetool-x86_64.AppImage AppDir PanthaTerminal-Linux-${PANTHA_VERSION}.AppImage
-
-      - name: Upload Linux AppImage
-        uses: actions/upload-artifact@v4
-        with:
-          name: PanthaSetup-Linux-${{ env.PANTHA_VERSION }}
-          path: PanthaTerminal-Linux-*.AppImage
-
-
-  build_macos_dmg:
-    name: Build macOS Setup (DMG)
-    runs-on: macos-latest
-    needs: test
-
-    steps:
-      - name: Checkout repo (full history for tags)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set version (tag or fallback)
-        run: |
-          tag="v0.0.0"
-          found=$(git describe --tags --abbrev=0 2>/dev/null || true)
-          if [ -n "$found" ]; then
-            tag="$found"
-          fi
-          echo "PANTHA_VERSION=$tag" >> $GITHUB_ENV
-          echo "Using version: $tag"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -232,23 +114,99 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build PanthaTerminal (macOS app)
+      - name: Build Linux binary (PyInstaller onefile)
+        run: |
+          pyinstaller --noconfirm --clean \
+            --name "PanthaTerminal" \
+            --onefile \
+            --add-data "app/styles.tcss:app" \
+            --add-data "app:app" \
+            app/main.py
+
+      - name: Create AppDir structure
+        run: |
+          mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/share/applications
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+
+          cp dist/PanthaTerminal AppDir/usr/bin/PanthaTerminal
+          chmod +x AppDir/usr/bin/PanthaTerminal
+
+          # desktop file REQUIRED or appimagetool fails
+          cat > AppDir/pantha-terminal.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=Pantha Terminal
+          Exec=PanthaTerminal
+          Icon=pantha-terminal
+          Categories=Utility;System;
+          Terminal=false
+          EOF
+
+          # icon: we only have .ico in repo, so we just ship it as the AppImage icon
+          cp assets/icon.ico AppDir/pantha-terminal.ico || true
+          cp assets/icon.ico AppDir/usr/share/icons/hicolor/256x256/apps/pantha-terminal.ico || true
+
+          # AppRun REQUIRED
+          cat > AppDir/AppRun << 'EOF'
+          #!/bin/sh
+          HERE="$(dirname "$(readlink -f "$0")")"
+          exec "$HERE/usr/bin/PanthaTerminal"
+          EOF
+          chmod +x AppDir/AppRun
+
+      - name: Download appimagetool
+        run: |
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+
+      - name: Make AppImage
+        run: |
+          ./appimagetool-x86_64.AppImage AppDir PanthaTerminal-Linux.AppImage
+
+      - name: Upload Linux Setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: PanthaSetup-Linux
+          path: PanthaTerminal-Linux.AppImage
+
+  setup_macos:
+    name: Build macOS Setup (DMG)
+    runs-on: macos-latest
+    needs: test
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps + PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build macOS app bundle
         run: |
           pyinstaller --noconfirm --clean \
             --name "PanthaTerminal" \
             --windowed \
             --add-data "app/styles.tcss:app" \
+            --add-data "app:app" \
             app/main.py
 
       - name: Create DMG
         run: |
-          rm -rf dmg_folder
-          mkdir -p dmg_folder
-          cp -R dist/PanthaTerminal.app dmg_folder/
-          hdiutil create -volname "Pantha Terminal" -srcfolder dmg_folder -ov -format UDZO PanthaTerminal-macOS-${PANTHA_VERSION}.dmg
+          mkdir -p dmg_stage
+          cp -R dist/PanthaTerminal.app dmg_stage/
+          hdiutil create -volname "Pantha Terminal" -srcfolder dmg_stage -ov -format UDZO PanthaTerminal-macOS.dmg
 
-      - name: Upload macOS DMG
+      - name: Upload macOS Setup
         uses: actions/upload-artifact@v4
         with:
-          name: PanthaSetup-macOS-${{ env.PANTHA_VERSION }}
-          path: PanthaTerminal-macOS-*.dmg
+          name: PanthaSetup-macOS
+          path: PanthaTerminal-macOS.dmg
