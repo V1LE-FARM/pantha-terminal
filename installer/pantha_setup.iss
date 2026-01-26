@@ -14,22 +14,19 @@ DefaultGroupName=Pantha Terminal
 
 OutputDir={#SourcePath}\installer_output
 OutputBaseFilename=PanthaSetup
+
 Compression=lzma
 SolidCompression=yes
+WizardStyle=modern
+PrivilegesRequired=admin
+DisableProgramGroupPage=yes
 
 SetupIconFile={#SourcePath}\assets\icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
-WizardStyle=modern
-DisableProgramGroupPage=yes
-PrivilegesRequired=admin
-
 [Files]
-; Main EXE created by PyInstaller
 Source: "{#SourcePath}\dist\PanthaTerminal.exe"; DestDir: "{app}"; Flags: ignoreversion
-
-; Icon (must exist in repo)
-Source: "{#SourcePath}\assets\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\assets\icon.ico"; DestDir: "{app}\assets"; Flags: ignoreversion
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a Desktop shortcut"; Flags: unchecked
