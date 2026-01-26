@@ -1,1 +1,65 @@
+/* Pantha Terminal - Neon Purple Glow Theme */
 
+Screen {
+    background: #05010a;
+}
+
+/* Main neon frame */
+#frame {
+    width: 100%;
+    height: 100%;
+    padding: 1 2;
+    border: round #c300ff;
+    background: #0b0213;
+}
+
+/* Pulse glow effect */
+.glow1 {
+    border: round #ff00ff;
+}
+.glow2 {
+    border: round #d000ff;
+}
+.glow3 {
+    border: round #a000ff;
+}
+
+/* Header */
+#header {
+    height: 3;
+    content-align: center middle;
+    color: #ff5cff;
+    text-style: bold;
+}
+
+/* Output area */
+#output {
+    height: 1fr;
+    padding: 1;
+    border: round #7a00ff;
+    background: #090012;
+    color: #f6e6ff;
+}
+
+/* Input bar container */
+#inputbar {
+    height: 3;
+    padding: 0 1;
+    border: round #7a00ff;
+    background: #090012;
+}
+
+/* Prompt label */
+#prompt {
+    width: 10;
+    content-align: left middle;
+    color: #ff5cff;
+    text-style: bold;
+}
+
+/* Input field */
+Input {
+    background: #12001f;
+    color: #ffffff;
+    border: none;
+}
