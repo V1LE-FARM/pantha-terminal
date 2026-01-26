@@ -1,6 +1,6 @@
 #define MyAppName "Pantha Terminal"
 #define MyAppExeName "PanthaTerminal.exe"
-#define MyAppPublisher "V1LE-FARM"
+#define MyAppPublisher "Pantha"
 #define MyAppURL "https://github.com/V1LE-FARM/pantha-terminal"
 
 #define MyAppVersion GetEnv("PANTHA_VERSION")
@@ -9,7 +9,7 @@
 #endif
 
 [Setup]
-AppId={{D9C0E6A2-8E11-4C9B-9E4A-7D2A6A7F9C10}}
+AppId={{A7C9A8B4-0F2A-4C5D-9E2A-1A1F9B8D9C01}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -21,30 +21,43 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 
 OutputDir=..\installer_output
-OutputBaseFilename=PanthaSetup-{#MyAppVersion}
+OutputBaseFilename=PanthaSetup-Windows-{#MyAppVersion}
 
 Compression=lzma
 SolidCompression=yes
+WizardStyle=modern
 
 SetupIconFile=..\assets\icon.ico
-WizardImageFile=..\assets\banner.bmp
-WizardSmallImageFile=..\assets\banner.bmp
+UninstallDisplayIcon={app}\{#MyAppExeName}
+
+WizardResizable=no
+DisableProgramGroupPage=yes
 
 PrivilegesRequired=admin
-DisableProgramGroupPage=yes
+ArchitecturesInstallIn64BitMode=x64
+
+UsePreviousAppDir=yes
+UsePreviousGroup=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a Desktop icon"; GroupDescription: "Additional icons:"; Flags: unchecked
+Name: "desktopicon"; Description: "Create a Desktop shortcut"; Flags: unchecked
+Name: "startup"; Description: "Run Pantha Terminal when Windows starts"; Flags: unchecked
 
 [Files]
-Source: "..\dist\PanthaTerminal\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\PanthaTerminal\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
+  ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"""; \
+  Flags: uninsdeletevalue; Tasks: startup
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
