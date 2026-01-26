@@ -1,4 +1,4 @@
-name: Pantha Terminal CI + Builds + Setup Installers
+name: Pantha Terminal CI + Installers
 
 on:
   push:
@@ -63,13 +63,6 @@ jobs:
             --add-data "app/styles.tcss;app" ^
             app/main.py
 
-      - name: Show dist contents
-        run: |
-          echo "=== DIST ==="
-          dir dist
-          echo "=== DIST/PANTHATERMINAL ==="
-          dir dist\PanthaTerminal
-
       - name: Install Inno Setup
         run: |
           choco install innosetup -y
@@ -107,7 +100,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pyinstaller
+          pip install pyinstaller pillow
 
       - name: Build PanthaTerminal (Linux)
         run: |
@@ -122,8 +115,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libfuse2 wget
 
-      - name: Make AppImage
+      - name: Build AppDir + AppImage (with icon from .ico)
         run: |
+          rm -rf AppDir
           mkdir -p AppDir/usr/bin
 
           # Put binary in AppDir
@@ -142,31 +136,43 @@ jobs:
           [Desktop Entry]
           Type=Application
           Name=Pantha Terminal
+          Comment=Pantha Terminal Application
           Exec=PanthaTerminal
           Icon=pantha-terminal
-          Categories=Utility;
+          Categories=Utility;TerminalEmulator;
           Terminal=false
           EOF
 
-          # Icon in ROOT (png preferred)
-          # We don't have a png, so we create a dummy fallback icon if needed
-          # If you later add assets/icon.png, it will use it automatically.
-          if [ -f assets/icon.png ]; then
-            cp assets/icon.png AppDir/pantha-terminal.png
-          else
-            # create tiny placeholder png so appimagetool doesn't complain
-            python - <<'PY'
+          # Convert assets/icon.ico -> AppDir/pantha-terminal.png (AppImage expects PNG)
+          python - <<'PY'
 from PIL import Image
-img = Image.new("RGBA",(256,256),(128,0,255,255))
-img.save("AppDir/pantha-terminal.png")
+import os
+
+ico_path = "assets/icon.ico"
+out_path = "AppDir/pantha-terminal.png"
+
+img = Image.open(ico_path)
+
+# ICO may contain multiple sizes; pick the biggest
+sizes = []
+try:
+    for frame in range(getattr(img, "n_frames", 1)):
+        img.seek(frame)
+        sizes.append((img.size[0]*img.size[1], img.size, img.copy()))
+except Exception:
+    sizes.append((img.size[0]*img.size[1], img.size, img.copy()))
+
+best = sorted(sizes, key=lambda x: x[0], reverse=True)[0][2].convert("RGBA")
+best = best.resize((256, 256))
+best.save(out_path, format="PNG")
+print("Saved:", out_path)
 PY
-          fi
 
           # Download appimagetool
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
 
-          # Build
+          # Build AppImage
           ./appimagetool-x86_64.AppImage AppDir PanthaTerminal-Linux.AppImage
 
       - name: Upload Linux AppImage
@@ -177,7 +183,7 @@ PY
 
 
   build_macos_dmg:
-    name: Build macOS DMG
+    name: Build macOS DMG (Signed if secrets exist)
     runs-on: macos-latest
     needs: test
 
@@ -204,8 +210,22 @@ PY
             --add-data "app/styles.tcss:app" \
             app/main.py
 
+      # Optional signing (won't fail if secrets not present)
+      - name: Codesign app (optional)
+        env:
+          MACOS_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+        run: |
+          if [ -z "$MACOS_SIGN_IDENTITY" ]; then
+            echo "No signing identity secret found, skipping codesign."
+            exit 0
+          fi
+
+          echo "Signing with: $MACOS_SIGN_IDENTITY"
+          codesign --force --deep --timestamp --options runtime --sign "$MACOS_SIGN_IDENTITY" "dist/PanthaTerminal.app"
+
       - name: Create DMG
         run: |
+          rm -rf dmg_folder
           mkdir -p dmg_folder
           cp -R dist/PanthaTerminal.app dmg_folder/
           hdiutil create -volname "Pantha Terminal" -srcfolder dmg_folder -ov -format UDZO PanthaTerminal-macOS.dmg
