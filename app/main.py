@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
-import traceback
+import subprocess
 from pathlib import Path
 
 from textual.app import App, ComposeResult
@@ -12,15 +12,11 @@ from textual.reactive import reactive
 
 
 def resource_path(relative: str) -> str:
-    """
-    Works in dev + PyInstaller.
-    Lets us find styles.tcss even when packed into an exe/app.
-    """
+    """Works in dev + PyInstaller."""
     try:
         base_path = sys._MEIPASS  # type: ignore[attr-defined]
     except Exception:
         base_path = os.path.abspath(".")
-
     return os.path.join(base_path, relative)
 
 
@@ -30,31 +26,23 @@ class PanthaBanner(Static):
     def on_mount(self) -> None:
         self.update(
             r"""
-╔══════════════════════════════════════════════════════════════════════╗
-║  ██████╗  █████╗ ███╗   ██╗████████╗██╗  ██╗ █████╗                 ║
-║  ██╔══██╗██╔══██╗████╗  ██║╚══██╔══╝██║  ██║██╔══██╗                ║
-║  ██████╔╝███████║██╔██╗ ██║   ██║   ███████║███████║                ║
-║  ██╔═══╝ ██╔══██║██║╚██╗██║   ██║   ██╔══██║██╔══██║                ║
-║  ██║     ██║  ██║██║ ╚████║   ██║   ██║  ██║██║  ██║                ║
-║  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝                ║
-║                                                                      ║
-║           ░▒▓█▓▒░  P A N T H A   T E R M I N A L  ░▒▓█▓▒░           ║
-╚══════════════════════════════════════════════════════════════════════╝
+██████╗  █████╗ ███╗   ██╗████████╗██╗  ██╗ █████╗
+██╔══██╗██╔══██╗████╗  ██║╚══██╔══╝██║  ██║██╔══██╗
+██████╔╝███████║██╔██╗ ██║   ██║   ███████║███████║
+██╔═══╝ ██╔══██║██║╚██╗██║   ██║   ██╔══██║██╔══██║
+██║     ██║  ██║██║ ╚████║   ██║   ██║  ██║██║  ██║
+╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
+
+        ░▒▓█▓▒░  P A N T H A   T E R M I N A L  ░▒▓█▓▒░
 """
         )
 
 
 class PanthaTerminal(App):
-    """
-    Main Textual App
-    """
-
     TITLE = "Pantha Terminal"
     SUB_TITLE = "Purple ASCII Terminal"
 
-    # We load TCSS manually so it always works packaged
     CSS_PATH = None
-
     status_text: reactive[str] = reactive("Ready")
 
     def __init__(self) -> None:
@@ -62,24 +50,23 @@ class PanthaTerminal(App):
         self.command_history: list[str] = []
         self.history_index: int = -1
 
+        # Prompt config
+        self.username = os.environ.get("USERNAME") or os.environ.get("USER") or "pantha"
+        self.hostname = os.environ.get("COMPUTERNAME") or os.uname().nodename if hasattr(os, "uname") else "local"
+
     def load_tcss(self) -> None:
-        """
-        Loads app/styles.tcss safely for both dev + packaged builds.
-        """
-        # Dev path
+        """Load styles.tcss for dev + packaged builds."""
         dev_path = Path(__file__).parent / "styles.tcss"
         if dev_path.exists():
             self.stylesheet.read(dev_path)
             return
 
-        # Packed path
         packed_path = Path(resource_path("app/styles.tcss"))
         if packed_path.exists():
             self.stylesheet.read(packed_path)
             return
 
-        # Missing TCSS shouldn't crash
-        self.log("⚠ styles.tcss not found (continuing without theme).")
+        self.log("⚠ styles.tcss not found (continuing without custom theme).")
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -91,20 +78,21 @@ class PanthaTerminal(App):
                 with Vertical(id="left_panel"):
                     yield Static("SYSTEM", id="panel_title")
                     yield Static(
+                        f"• User: {self.username}\n"
+                        f"• Host: {self.hostname}\n"
                         "• Pantha Terminal\n"
                         "• Textual UI\n"
                         "• Purple Glow\n"
-                        "• ASCII Mode\n"
-                        "• Packaged EXE Safe",
+                        "• ASCII Mode",
                         id="system_info",
                     )
 
                     yield Static("HOTKEYS", id="panel_title2")
                     yield Static(
-                        "ENTER  → run command\n"
+                        "ENTER   → run command\n"
                         "UP/DOWN → history\n"
-                        "CTRL+C → quit\n"
-                        "CTRL+L → clear log",
+                        "CTRL+C  → quit\n"
+                        "CTRL+L  → clear log",
                         id="hotkeys",
                     )
 
@@ -115,44 +103,87 @@ class PanthaTerminal(App):
                         yield RichLog(id="log", highlight=True, markup=True, wrap=True)
 
                     yield Static("", id="status_line")
-                    yield Input(
-                        placeholder="Type a command... (try: help)",
-                        id="command_input",
-                    )
+
+                    yield Input(placeholder="Type a command... (try: help)", id="command_input")
 
         yield Footer()
 
-    async def on_mount(self) -> None:
-        """
-        IMPORTANT FIX:
-        Using async on_mount prevents the Windows driver assertion crash
-        in some packaged environments.
-        """
+    def on_mount(self) -> None:
         self.load_tcss()
 
         log = self.query_one("#log", RichLog)
         log.write("[bold #ff4dff]Pantha Terminal Online.[/]")
         log.write("[#b066ff]Type [bold]help[/] for commands.[/]")
+        log.write("[#b066ff]Try [bold]ascii[/] to enable pantha mode.[/]")
         self.update_status("Ready")
 
         self.query_one("#command_input", Input).focus()
 
     def update_status(self, text: str) -> None:
         self.status_text = text
-        self.query_one("#status_line", Static).update(f"STATUS: {text}")
+        self.query_one("#status_line", Static).update(f"[#ff4dff]STATUS:[/] [#ffffff]{text}[/]")
 
-    def safe_log_error(self, title: str, err: BaseException) -> None:
-        """
-        Logs full exception without crashing the app.
-        """
+    def prompt(self) -> str:
+        return f"[#b066ff]{self.username}[/]@[#ff4dff]{self.hostname}[/]:[#ffffff]~$[/]"
+
+    def write_cmd(self, cmd: str) -> None:
         log = self.query_one("#log", RichLog)
-        log.write(f"[bold red]{title}[/]")
-        tb = "".join(traceback.format_exception(type(err), err, err.__traceback__))
-        log.write(f"[#ff4dff]{tb}[/]")
+        log.write(f"{self.prompt()} [#ffffff]{cmd}[/]")
+
+    def write_info(self, text: str) -> None:
+        self.query_one("#log", RichLog).write(f"[#b066ff]{text}[/]")
+
+    def write_err(self, text: str) -> None:
+        self.query_one("#log", RichLog).write(f"[bold red]{text}[/]")
+
+    def show_ascii(self) -> None:
+        logo = r"""
+[#ff4dff]
+                /\_/\ 
+           ____/ o o \
+         /~____  =ø= /
+        (______)__m_m)
+[/]
+
+[#b066ff]
+     ██████╗  █████╗ ███╗   ██╗████████╗██╗  ██╗ █████╗
+     ██╔══██╗██╔══██╗████╗  ██║╚══██╔══╝██║  ██║██╔══██╗
+     ██████╔╝███████║██╔██╗ ██║   ██║   ███████║███████║
+     ██╔═══╝ ██╔══██║██║╚██╗██║   ██║   ██╔══██║██╔══██║
+     ██║     ██║  ██║██║ ╚████║   ██║   ██║  ██║██║  ██║
+     ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
+
+            ░▒▓█▓▒░  PANTHA MODE ENABLED  ░▒▓█▓▒░
+[/]
+"""
+        self.query_one("#log", RichLog).write(logo)
+
+    def run_shell_command(self, cmd: str) -> None:
+        """Run unknown commands in system shell."""
+        log = self.query_one("#log", RichLog)
+
+        try:
+            # Windows uses cmd.exe
+            if os.name == "nt":
+                result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            else:
+                result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+            if result.stdout.strip():
+                for line in result.stdout.splitlines():
+                    log.write(f"[#ffffff]{line}[/]")
+
+            if result.stderr.strip():
+                for line in result.stderr.splitlines():
+                    log.write(f"[bold red]{line}[/]")
+
+            self.update_status("Command executed")
+
+        except Exception as e:
+            self.write_err(f"Command failed: {e}")
+            self.update_status("Command failed")
 
     def run_command(self, cmd: str) -> None:
-        log = self.query_one("#log", RichLog)
-
         cmd = cmd.strip()
         if not cmd:
             return
@@ -160,63 +191,54 @@ class PanthaTerminal(App):
         self.command_history.append(cmd)
         self.history_index = len(self.command_history)
 
-        log.write(f"[bold #ff4dff]»[/] [#ffffff]{cmd}[/]")
+        self.write_cmd(cmd)
 
-        try:
-            # Built-in commands
-            if cmd.lower() in ("help", "?"):
-                log.write("[#b066ff]Commands:[/]")
-                log.write("  [#ff4dff]help[/]      - show this menu")
-                log.write("  [#ff4dff]clear[/]     - clear output")
-                log.write("  [#ff4dff]about[/]     - about Pantha Terminal")
-                log.write("  [#ff4dff]ascii[/]     - show the pantha banner")
-                log.write("  [#ff4dff]exit[/]      - quit")
-                self.update_status("Help displayed")
-                return
+        low = cmd.lower()
 
-            if cmd.lower() == "clear":
-                log.clear()
-                log.write("[#b066ff]Output cleared.[/]")
-                self.update_status("Cleared")
-                return
+        if low in ("help", "?"):
+            self.write_info("Commands:")
+            self.query_one("#log", RichLog).write(
+                "[#ffffff]"
+                "  help       - show this menu\n"
+                "  clear      - clear output\n"
+                "  about      - about Pantha Terminal\n"
+                "  ascii      - show the pantha banner\n"
+                "  exit       - quit\n"
+                "  shell on   - enable shell execution\n"
+                "  shell off  - disable shell execution\n"
+                "[/]"
+            )
+            self.update_status("Help displayed")
+            return
 
-            if cmd.lower() == "about":
-                log.write("[bold #ff4dff]Pantha Terminal[/]")
-                log.write("[#b066ff]A purple ASCII terminal UI built with Textual.[/]")
-                log.write(
-                    "[#b066ff]GitHub: [underline]https://github.com/V1LE-FARM/pantha-terminal[/][/]"
-                )
-                self.update_status("About shown")
-                return
+        if low == "clear":
+            log = self.query_one("#log", RichLog)
+            log.clear()
+            self.write_info("Output cleared.")
+            self.update_status("Cleared")
+            return
 
-            if cmd.lower() == "ascii":
-                log.write(
-                    "[#ff4dff]"
-                    + r"""
-      /\_/\ 
- ____/ o o \
-/~____  =ø= /
-(______)__m_m)
-"""
-                    + "[/]"
-                )
-                log.write("[#b066ff]Pantha mode: ENABLED[/]")
-                self.update_status("ASCII shown")
-                return
+        if low == "about":
+            self.query_one("#log", RichLog).write(
+                "[bold #ff4dff]Pantha Terminal[/]\n"
+                "[#b066ff]A purple ASCII terminal UI built with Textual.[/]\n"
+                "[#b066ff]GitHub: [underline]https://github.com/V1LE-FARM/pantha-terminal[/][/]"
+            )
+            self.update_status("About shown")
+            return
 
-            if cmd.lower() in ("exit", "quit"):
-                self.update_status("Exiting...")
-                self.exit()
-                return
+        if low == "ascii":
+            self.show_ascii()
+            self.update_status("ASCII shown")
+            return
 
-            # Default: unknown command
-            log.write("[bold red]Unknown command.[/]")
-            log.write("[#b066ff]Try: help[/]")
-            self.update_status("Unknown command")
+        if low in ("exit", "quit"):
+            self.update_status("Exiting...")
+            self.exit()
+            return
 
-        except Exception as e:
-            self.safe_log_error("Command crashed!", e)
-            self.update_status("Error")
+        # default: run shell command (nice for real terminal feel)
+        self.run_shell_command(cmd)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         cmd = event.value
@@ -224,21 +246,16 @@ class PanthaTerminal(App):
         self.run_command(cmd)
 
     def on_key(self, event) -> None:
-        """
-        UP/DOWN history + CTRL+L clear
-        """
         inp = self.query_one("#command_input", Input)
 
-        # CTRL+L to clear log
         if event.key == "ctrl+l":
             log = self.query_one("#log", RichLog)
             log.clear()
-            log.write("[#b066ff]Output cleared.[/]")
+            self.write_info("Output cleared.")
             self.update_status("Cleared")
             event.stop()
             return
 
-        # History navigation
         if event.key == "up":
             if not self.command_history:
                 return
@@ -262,11 +279,4 @@ class PanthaTerminal(App):
 
 
 if __name__ == "__main__":
-    # This prevents the packaged exe from instantly dying silently.
-    try:
-        PanthaTerminal().run()
-    except Exception as e:
-        # If something fails before Textual UI starts, print the error
-        print("PAN-BOOT ERROR:", e)
-        traceback.print_exc()
-        input("Press ENTER to close...")
+    PanthaTerminal().run()
