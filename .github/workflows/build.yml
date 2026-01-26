@@ -24,11 +24,18 @@ jobs:
         shell: pwsh
         run: |
           $tag = ""
-          try { $tag = (git describe --tags --abbrev=0 2>$null) } catch { $tag = "" }
-          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v0.0.0" }
+          try {
+            $tag = (git describe --tags --abbrev=0 2>$null)
+          } catch {
+            $tag = ""
+          }
 
-          echo "Using version: $tag"
-          echo "PANTHA_VERSION=$tag" >> $env:GITHUB_ENV
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            $tag = "v0.0.0"
+          }
+
+          "PANTHA_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Using version: $tag"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -110,26 +117,24 @@ jobs:
             --onedir \
             app/main.py
 
-      - name: Install AppImage dependencies (FIX libfuse.so.2)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libfuse2
-
       - name: Create AppDir structure
         run: |
+          rm -rf AppDir
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/share/applications
           mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
 
           cp -r dist/PanthaTerminal/* AppDir/usr/bin/
 
+          # AppRun
           cat > AppDir/AppRun << 'EOF'
           #!/bin/bash
           HERE="$(dirname "$(readlink -f "$0")")"
-          exec "$HERE/usr/bin/PanthaTerminal"
+          exec "$HERE/usr/bin/PanthaTerminal/PanthaTerminal" "$@"
           EOF
           chmod +x AppDir/AppRun
 
+          # Desktop entry
           cat > AppDir/usr/share/applications/pantha-terminal.desktop << EOF
           [Desktop Entry]
           Type=Application
@@ -140,7 +145,7 @@ jobs:
           Terminal=true
           EOF
 
-          # icon (optional)
+          # Optional icon
           if [ -f "assets/icon.png" ]; then
             cp assets/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/pantha-terminal.png
           fi
@@ -150,9 +155,16 @@ jobs:
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
 
-      - name: Make AppImage
+      - name: Make AppImage (NO-FUSE method)
         run: |
-          ./appimagetool-x86_64.AppImage AppDir PanthaTerminal-Linux-${{ env.PANTHA_VERSION }}.AppImage
+          # Extract appimagetool so it doesn't need FUSE
+          ./appimagetool-x86_64.AppImage --appimage-extract
+
+          chmod +x squashfs-root/AppRun
+
+          ./squashfs-root/AppRun AppDir "PanthaTerminal-Linux-${{ env.PANTHA_VERSION }}.AppImage"
+
+          chmod +x "PanthaTerminal-Linux-${{ env.PANTHA_VERSION }}.AppImage"
 
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
@@ -200,6 +212,7 @@ jobs:
 
       - name: Create DMG
         run: |
+          rm -rf dmg
           mkdir -p dmg/PanthaTerminal
           cp -R dist/PanthaTerminal/* dmg/PanthaTerminal/
 
