@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Static, Input, RichLog
@@ -8,7 +10,9 @@ from app.commands import run_command
 
 
 class PanthaTerminal(App):
-    CSS_PATH = "styles.tcss"
+    # Make CSS path absolute so it works in PyInstaller builds too
+    CSS_PATH = Path(__file__).with_name("styles.tcss")
+
     TITLE = "Pantha Terminal"
     SUB_TITLE = "Neon Purple Terminal UI"
 
@@ -45,18 +49,9 @@ class PanthaTerminal(App):
         frame = self.query_one("#frame")
         self.glow_state = (self.glow_state + 1) % 3
 
-        if self.glow_state == 0:
-            frame.set_class(True, "glow1")
-            frame.set_class(False, "glow2")
-            frame.set_class(False, "glow3")
-        elif self.glow_state == 1:
-            frame.set_class(False, "glow1")
-            frame.set_class(True, "glow2")
-            frame.set_class(False, "glow3")
-        else:
-            frame.set_class(False, "glow1")
-            frame.set_class(False, "glow2")
-            frame.set_class(True, "glow3")
+        frame.set_class(self.glow_state == 0, "glow1")
+        frame.set_class(self.glow_state == 1, "glow2")
+        frame.set_class(self.glow_state == 2, "glow3")
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         command = event.value.strip()
@@ -65,7 +60,6 @@ class PanthaTerminal(App):
         if not command:
             return
 
-        # Print prompt line
         self.output.write(f"[bold bright_magenta]Pantha >[/] {command}")
 
         result, action = run_command(command)
@@ -90,4 +84,3 @@ class PanthaTerminal(App):
 
 if __name__ == "__main__":
     PanthaTerminal().run()
-
