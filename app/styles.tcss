@@ -1,91 +1,39 @@
 /* ============================================================
-   PANTHA TERMINAL — NEON CRT OS
-   FULL EFFECTS — TEXTUAL SAFE
-   ============================================================ */
-
-
-/* ============================================================
-   GLOBAL SHELL
+   PANTHA TERMINAL — NEON CRT FRAME
    ============================================================ */
 
 Screen {
-    background: #010003;
+    background: #020005;
     color: #eadcff;
 }
 
-
-/* ============================================================
-   OUTER CRT FRAME — THIS IS THE PURPLE BORDER YOU WANT
-   ============================================================ */
-
+/* OUTER NEON FRAME (THIS IS THE FIX) */
 #frame {
     height: 100%;
-    width: 100%;
     padding: 1;
-    background: #020004;
-    border: heavy #5a00cc;
-}
-
-/* Pulse when app is focused */
-#frame:focus-within {
+    background: #020005;
     border: heavy #ff4dff;
 }
 
+#frame:focus-within {
+    border: heavy #ff8cff;
+}
 
-/* ============================================================
-   INNER FRAME — GLOW LAYER
-   ============================================================ */
-
-#inner_frame {
+/* INNER ROOT */
+#root {
     height: 100%;
     padding: 1 2;
     background: #050009;
-    border: solid #a855ff;
 }
 
-
-/* ============================================================
-   BOOT SEQUENCE (CLASS-DRIVEN)
-   ============================================================ */
-
-.boot-init {
-    background: #000000;
-    border: solid #000000;
-}
-
-.boot-glow {
-    background: #050009;
+/* HEADER / FOOTER */
+Header, Footer {
+    background: #0f0016;
+    color: #ffb3ff;
     border: heavy #6a00ff;
 }
 
-.boot-ready {
-    background: #07000d;
-    border: heavy #ff4dff;
-}
-
-
-/* ============================================================
-   HEADER / FOOTER (SYSTEM BUS)
-   ============================================================ */
-
-Header {
-    background: #0f0016;
-    color: #ffb3ff;
-    border: heavy #8a00ff;
-    text-style: bold;
-}
-
-Footer {
-    background: #0f0016;
-    color: #b58cff;
-    border: solid #5a00aa;
-}
-
-
-/* ============================================================
-   BANNER / ASCII LOGO
-   ============================================================ */
-
+/* BANNER */
 #banner {
     padding: 1 3;
     margin-bottom: 1;
@@ -96,58 +44,24 @@ Footer {
     content-align: center middle;
 }
 
-/* Boot glow escalation */
-#banner.boot-ready {
-    color: #ffd6ff;
-}
-
-
-/* ============================================================
-   MAIN LAYOUT
-   ============================================================ */
-
+/* MAIN LAYOUT */
 #main_row {
     height: 1fr;
-    width: 100%;
 }
 
-
-/* ============================================================
-   PANELS — CRT CHASSIS
-   ============================================================ */
+/* PANELS */
+#left_panel, #right_panel {
+    padding: 1;
+    background: #05000b;
+    border: heavy #6a00ff;
+}
 
 #left_panel {
     width: 34;
-    padding: 1;
     margin-right: 1;
-    background: #05000b;
-    border: heavy #6a00ff;
 }
 
-#right_panel {
-    width: 1fr;
-    padding: 1;
-    background: #05000b;
-    border: heavy #6a00ff;
-}
-
-
-/* ============================================================
-   SCANLINE / CRT ILLUSION
-   ============================================================ */
-
-#left_panel,
-#right_panel,
-#log_wrap {
-    background: #05000b;
-    text-style: dim;
-}
-
-
-/* ============================================================
-   PANEL TITLES
-   ============================================================ */
-
+/* TITLES */
 #panel_title,
 #panel_title2,
 #output_title {
@@ -159,11 +73,7 @@ Footer {
     text-style: bold;
 }
 
-
-/* ============================================================
-   SYSTEM MODULES
-   ============================================================ */
-
+/* MODULES */
 #system_info,
 #hotkeys {
     padding: 1;
@@ -173,16 +83,16 @@ Footer {
     border: solid #3d0066;
 }
 
-
-/* ============================================================
-   LOG CORE — CRT DISPLAY
-   ============================================================ */
-
+/* LOG */
 #log_wrap {
     height: 1fr;
     padding: 1;
     background: #020004;
     border: heavy #b300ff;
+}
+
+#log_wrap:focus-within {
+    border: heavy #ff4dff;
 }
 
 #log {
@@ -191,17 +101,7 @@ Footer {
     color: #f8edff;
 }
 
-/* Focus glow */
-#log_wrap:focus-within {
-    border: heavy #ff4dff;
-    background: #06000c;
-}
-
-
-/* ============================================================
-   STATUS BAR
-   ============================================================ */
-
+/* STATUS */
 #status_line {
     height: 3;
     padding: 0 1;
@@ -212,11 +112,7 @@ Footer {
     text-style: bold;
 }
 
-
-/* ============================================================
-   INPUT CORE — COMMAND SURGE
-   ============================================================ */
-
+/* INPUT */
 #command_input {
     height: 3;
     margin-top: 1;
@@ -229,19 +125,9 @@ Footer {
 #command_input:focus {
     background: #220035;
     border: heavy #ff4dff;
-    color: #ffffff;
 }
 
-.command-fired {
-    border: heavy #ffffff;
-    background: #2a0040;
-}
-
-
-/* ============================================================
-   CURSOR / SELECTION
-   ============================================================ */
-
+/* CURSOR */
 Input > .input--cursor {
     background: #ff4dff;
     color: #050009;
@@ -252,11 +138,7 @@ Input > .input--selection {
     color: #ffffff;
 }
 
-
-/* ============================================================
-   SCROLLBAR
-   ============================================================ */
-
+/* SCROLLBAR */
 Scrollbar {
     background: #090010;
 }
@@ -268,63 +150,3 @@ Scrollbar > .scrollbar--thumb {
 Scrollbar > .scrollbar--thumb:hover {
     background: #ff4dff;
 }
-
-
-/* ============================================================
-   ASCII / TEXT SHIMMER
-   ============================================================ */
-
-Static,
-Label {
-    color: #f0ddff;
-}
-
-Static.-accent {
-    color: #ffb7ff;
-    text-style: bold;
-}
-
-
-/* ============================================================
-   COMMAND OUTPUT STATES
-   ============================================================ */
-
-.log-success {
-    color: #caffff;
-    background: #001a1a;
-}
-
-.log-error {
-    color: #ff9b9b;
-    background: #1a0000;
-    border: heavy #ff0033;
-}
-
-.log-warning {
-    color: #ffd27d;
-    background: #1a1200;
-}
-
-.log-system {
-    color: #b58cff;
-    background: #0d001a;
-}
-
-
-/* ============================================================
-   THEME MODES
-   ============================================================ */
-
-.theme-void {
-    background: #020005;
-}
-
-.theme-inferno {
-    background: #120000;
-    color: #ffb347;
-}
-
-
-/* ============================================================
-   END — PANTHA TERMINAL IS ALIVE
-   ============================================================ */
