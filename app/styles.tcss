@@ -1,159 +1,248 @@
 /* ============================================================
-   PANTHA TERMINAL — PURPLE NEON THEME (TEXTUAL TCSS SAFE)
-   app/styles.tcss
+   PANTHA TERMINAL — NEON CRT OS
+   FULL EFFECTS — TEXTUAL SAFE
+   ============================================================ */
+
+
+/* ============================================================
+   GLOBAL SHELL
    ============================================================ */
 
 Screen {
-    background: #07000d;
-    color: #e9d7ff;
+    background: #020005;
+    color: #eadcff;
 }
 
-/* Root layout */
+/* Root container (boot glow base) */
 #root {
     height: 100%;
     padding: 1 2;
+    background: #050009;
+    border: heavy #2b0044;
 }
 
-/* Header / Footer */
+
+/* ============================================================
+   BOOT SEQUENCE (CLASS-DRIVEN)
+   ============================================================ */
+
+/* Stage 0: dark */
+.boot-init {
+    background: #000000;
+    border: solid #000000;
+}
+
+/* Stage 1: power-on glow */
+.boot-glow {
+    background: #050009;
+    border: heavy #6a00ff;
+}
+
+/* Stage 2: system online */
+.boot-ready {
+    background: #07000d;
+    border: heavy #ff4dff;
+}
+
+
+/* ============================================================
+   HEADER / FOOTER (SYSTEM BUS)
+   ============================================================ */
+
 Header {
-    background: #120018;
-    color: #ff4dff;
-    border: solid #6a00ff;
+    background: #0f0016;
+    color: #ffb3ff;
+    border: heavy #8a00ff;
+    text-style: bold;
 }
 
 Footer {
-    background: #120018;
-    color: #b066ff;
-    border: solid #6a00ff;
+    background: #0f0016;
+    color: #b58cff;
+    border: solid #5a00aa;
 }
 
-/* Banner */
+
+/* ============================================================
+   BANNER / ASCII LOGO
+   ============================================================ */
+
 #banner {
-    height: auto;
-    padding: 1 2;
+    padding: 1 3;
     margin-bottom: 1;
-    color: #ff4dff;
-    background: #08000f;
+    background: #080010;
+    color: #ffb7ff;
     border: heavy #ff4dff;
     text-style: bold;
     content-align: center middle;
 }
 
-/* Main row (NO gap in Textual — use margins instead) */
+/* Extra glow when boot completes */
+#banner.boot-ready {
+    color: #ffd6ff;
+}
+
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+
 #main_row {
     height: 1fr;
     width: 100%;
 }
 
-/* Left panel */
+
+/* ============================================================
+   PANELS — CRT CHASSIS
+   ============================================================ */
+
 #left_panel {
     width: 34;
-    padding: 1 1;
-    margin-right: 1;     /* replaces gap */
-    background: #07000d;
+    padding: 1;
+    margin-right: 1;
+    background: #05000b;
     border: heavy #6a00ff;
 }
 
-/* Right panel */
 #right_panel {
     width: 1fr;
-    padding: 1 1;
-    background: #07000d;
+    padding: 1;
+    background: #05000b;
     border: heavy #6a00ff;
 }
 
-/* Titles */
+
+/* ============================================================
+   SCANLINE ILLUSION
+   ============================================================ */
+
+#left_panel,
+#right_panel,
+#log_wrap {
+    background: #05000b;
+    text-style: dim;
+}
+
+
+/* ============================================================
+   PANEL TITLES
+   ============================================================ */
+
 #panel_title,
 #panel_title2,
 #output_title {
-    padding: 0 1;
+    padding: 0 2;
     margin-bottom: 1;
-    background: #14001f;
-    color: #ff4dff;
-    border: tall #7a00ff;
+    background: #180024;
+    color: #ff9bff;
+    border: heavy #9b00ff;
     text-style: bold;
 }
 
-/* Left panel content */
-#system_info {
-    padding: 1 1;
-    margin-bottom: 1;
-    color: #d7b8ff;
-    background: #09000f;
-    border: solid #3d0066;
-}
 
+/* ============================================================
+   SYSTEM MODULES
+   ============================================================ */
+
+#system_info,
 #hotkeys {
-    padding: 1 1;
-    color: #d7b8ff;
-    background: #09000f;
+    padding: 1;
+    margin-bottom: 1;
+    background: #07000d;
+    color: #d9c0ff;
     border: solid #3d0066;
 }
 
-/* Log wrapper */
+
+/* ============================================================
+   LOG CORE — CRT DISPLAY
+   ============================================================ */
+
 #log_wrap {
     height: 1fr;
-    padding: 1 1;
-    background: #050009;
-    border: heavy #a000ff;
+    padding: 1;
+    background: #020004;
+    border: heavy #b300ff;
 }
 
-/* RichLog output */
+/* Idle flicker illusion */
 #log {
-    padding: 1 1;
-    background: #050009;
-    color: #f3e8ff;
+    padding: 1 2;
+    background: #090012;
+    color: #f8edff;
 }
 
-/* Make log feel like a neon CRT */
-#log_wrap {
-    background: #050009;
-    border: heavy #a000ff;
+/* Focus pulse */
+#log_wrap:focus-within {
+    border: heavy #ff4dff;
+    background: #06000c;
 }
 
-/* Status line */
+
+/* ============================================================
+   STATUS BAR
+   ============================================================ */
+
 #status_line {
     height: 3;
     padding: 0 1;
     margin-top: 1;
-    background: #120018;
-    color: #b066ff;
+    background: #100016;
+    color: #b58cff;
     border: solid #6a00ff;
     text-style: bold;
 }
 
-/* Input bar */
+
+/* ============================================================
+   INPUT CORE — COMMAND SURGE
+   ============================================================ */
+
 #command_input {
     height: 3;
     margin-top: 1;
     padding: 0 1;
-    background: #120018;
+    background: #14001f;
     color: #ffffff;
-    border: heavy #ff4dff;
+    border: heavy #9b00ff;
 }
 
-/* Input focus glow */
+/* Active pulse */
 #command_input:focus {
+    background: #220035;
     border: heavy #ff4dff;
-    background: #180022;
     color: #ffffff;
 }
 
-/* Cursor highlight */
+/* ENTER key surge (add class briefly) */
+.command-fired {
+    border: heavy #ffffff;
+    background: #2a0040;
+}
+
+
+/* ============================================================
+   CURSOR / SELECTION
+   ============================================================ */
+
 Input > .input--cursor {
     background: #ff4dff;
-    color: #07000d;
+    color: #050009;
 }
 
-/* Selection highlight */
 Input > .input--selection {
     background: #7a00ff;
     color: #ffffff;
 }
 
-/* Scrollbar glow */
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
 Scrollbar {
-    background: #0b0011;
+    background: #090010;
 }
 
 Scrollbar > .scrollbar--thumb {
@@ -164,11 +253,62 @@ Scrollbar > .scrollbar--thumb:hover {
     background: #ff4dff;
 }
 
+
 /* ============================================================
-   CRT / SCANLINE VIBE (Textual-safe)
-   We can't do real overlay scanlines in TCSS,
-   but we can darken + border pop for that "screen" look.
+   ASCII SHIMMER
    ============================================================ */
-#left_panel, #right_panel {
-    background: #07000d;
+
+Static,
+Label {
+    color: #f0ddff;
 }
+
+Static.-accent {
+    color: #ffb7ff;
+    text-style: bold;
+}
+
+
+/* ============================================================
+   COMMAND OUTPUT GLOWS
+   ============================================================ */
+
+.log-success {
+    color: #caffff;
+    background: #001a1a;
+}
+
+.log-error {
+    color: #ff9b9b;
+    background: #1a0000;
+    border: heavy #ff0033;
+}
+
+.log-warning {
+    color: #ffd27d;
+    background: #1a1200;
+}
+
+.log-system {
+    color: #b58cff;
+    background: #0d001a;
+}
+
+
+/* ============================================================
+   THEME MODES
+   ============================================================ */
+
+.theme-void {
+    background: #020005;
+}
+
+.theme-inferno {
+    background: #120000;
+    color: #ffb347;
+}
+
+
+/* ============================================================
+   END — PANTHA TERMINAL IS ALIVE
+   ============================================================ */
