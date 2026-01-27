@@ -1,56 +1,83 @@
 /* ============================================================
-   PANTHA TERMINAL — NEON CRT FRAME
+   PANTHA TERMINAL — NEON COCKPIT EDITION
+   Textual SAFE — no unsupported animations
    ============================================================ */
 
+/* -------------------- GLOBAL -------------------- */
+
 Screen {
-    background: #020005;
+    background: #010003;
     color: #eadcff;
 }
 
-/* OUTER NEON FRAME (THIS IS THE FIX) */
-#frame {
-    height: 100%;
-    padding: 1;
-    background: #020005;
-    border: heavy #ff4dff;
-}
-
-#frame:focus-within {
-    border: heavy #ff8cff;
-}
-
-/* INNER ROOT */
+/* OUTER NEON FRAME (THIS IS THE BORDER YOU WANT) */
 #root {
     height: 100%;
     padding: 1 2;
-    background: #050009;
+    background: #040008;
+    border: heavy #8a00ff;
 }
 
-/* HEADER / FOOTER */
-Header, Footer {
-    background: #0f0016;
-    color: #ffb3ff;
+/* -------------------- BOOT STATES -------------------- */
+
+.boot-init {
+    background: #000000;
+    border: solid #000000;
+}
+
+.boot-glow {
+    background: #05000b;
     border: heavy #6a00ff;
 }
 
-/* BANNER */
+.boot-ready {
+    background: #07000d;
+    border: heavy #ff4dff;
+}
+
+/* -------------------- HEADER / FOOTER -------------------- */
+
+Header {
+    background: #0b0014;
+    color: #ffb7ff;
+    border: heavy #6a00ff;
+    text-style: bold;
+}
+
+Footer {
+    background: #0b0014;
+    color: #b58cff;
+    border: heavy #6a00ff;
+}
+
+/* -------------------- BANNER -------------------- */
+
 #banner {
     padding: 1 3;
     margin-bottom: 1;
-    background: #080010;
-    color: #ffb7ff;
+    background: #06000c;
+    color: #e7c6ff;
     border: heavy #ff4dff;
     text-style: bold;
     content-align: center middle;
 }
 
-/* MAIN LAYOUT */
-#main_row {
-    height: 1fr;
+/* ASCII glow illusion */
+#banner Static {
+    color: #d39cff;
 }
 
-/* PANELS */
-#left_panel, #right_panel {
+/* -------------------- MAIN LAYOUT -------------------- */
+
+#main_row {
+    height: 1fr;
+    width: 100%;
+}
+
+/* -------------------- PANELS -------------------- */
+
+#left_panel,
+#right_panel {
     padding: 1;
     background: #05000b;
     border: heavy #6a00ff;
@@ -61,7 +88,12 @@ Header, Footer {
     margin-right: 1;
 }
 
-/* TITLES */
+#right_panel {
+    width: 1fr;
+}
+
+/* -------------------- PANEL TITLES -------------------- */
+
 #panel_title,
 #panel_title2,
 #output_title {
@@ -73,7 +105,8 @@ Header, Footer {
     text-style: bold;
 }
 
-/* MODULES */
+/* -------------------- SYSTEM INFO -------------------- */
+
 #system_info,
 #hotkeys {
     padding: 1;
@@ -83,7 +116,8 @@ Header, Footer {
     border: solid #3d0066;
 }
 
-/* LOG */
+/* -------------------- LOG CORE -------------------- */
+
 #log_wrap {
     height: 1fr;
     padding: 1;
@@ -93,6 +127,7 @@ Header, Footer {
 
 #log_wrap:focus-within {
     border: heavy #ff4dff;
+    background: #06000c;
 }
 
 #log {
@@ -101,7 +136,8 @@ Header, Footer {
     color: #f8edff;
 }
 
-/* STATUS */
+/* -------------------- STATUS BAR -------------------- */
+
 #status_line {
     height: 3;
     padding: 0 1;
@@ -112,7 +148,8 @@ Header, Footer {
     text-style: bold;
 }
 
-/* INPUT */
+/* -------------------- INPUT -------------------- */
+
 #command_input {
     height: 3;
     margin-top: 1;
@@ -127,7 +164,14 @@ Header, Footer {
     border: heavy #ff4dff;
 }
 
-/* CURSOR */
+/* ENTER flash */
+.command-fired {
+    border: heavy #ffffff;
+    background: #2a0040;
+}
+
+/* -------------------- CURSOR -------------------- */
+
 Input > .input--cursor {
     background: #ff4dff;
     color: #050009;
@@ -138,7 +182,8 @@ Input > .input--selection {
     color: #ffffff;
 }
 
-/* SCROLLBAR */
+/* -------------------- SCROLLBAR -------------------- */
+
 Scrollbar {
     background: #090010;
 }
@@ -150,3 +195,10 @@ Scrollbar > .scrollbar--thumb {
 Scrollbar > .scrollbar--thumb:hover {
     background: #ff4dff;
 }
+
+/* -------------------- OUTPUT TYPES -------------------- */
+
+.log-success { color: #caffff; }
+.log-error { color: #ff9b9b; }
+.log-warning { color: #ffd27d; }
+.log-system { color: #b58cff; }
