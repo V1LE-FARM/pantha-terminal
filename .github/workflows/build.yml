@@ -1,4 +1,4 @@
-name: Build Pantha Terminal
+name: Build Pantha Terminal (Windows)
 
 on:
   push:
@@ -15,10 +15,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set version (tag or fallback)
+      - name: Set version (from tag or fallback)
         shell: pwsh
         run: |
           $ver = "v0.0.0"
@@ -33,21 +33,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps + PyInstaller
+      - name: Install dependencies + PyInstaller
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build PanthaTerminal (Windows ONEDIR + CONSOLE)
+      - name: Build PanthaTerminal (ONEDIR, console, icon embedded)
         shell: pwsh
         run: |
           pyinstaller --noconfirm --clean `
             --name "PanthaTerminal" `
             --onedir `
             --console `
-            --icon assets/icon.ico `
+            --icon "assets/icon.ico" `
             --collect-all rich `
             --collect-all textual `
             --collect-submodules rich._unicode_data `
@@ -63,68 +63,13 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path installer_output | Out-Null
 
-      - name: Compile Windows Installer (pantha_setup.iss)
+      - name: Compile Windows Installer
         shell: pwsh
         run: |
           iscc installer/pantha_setup.iss
 
-      - name: Upload Windows Setup
+      - name: Upload Windows Installer
         uses: actions/upload-artifact@v4
         with:
           name: PanthaSetup-Windows-${{ env.PANTHA_VERSION }}
           path: installer_output/*.exe
-
-  build-macos:
-    name: Build macOS Setup (DMG)
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set version (tag or fallback)
-        shell: bash
-        run: |
-          ver="v0.0.0"
-          if [ "${{ github.ref_type }}" = "tag" ]; then
-            ver="${{ github.ref_name }}"
-          fi
-          echo "Using version: $ver"
-          echo "PANTHA_VERSION=$ver" >> $GITHUB_ENV
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install deps + PyInstaller
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
-
-      - name: Build macOS folder (PyInstaller ONEDIR)
-        run: |
-          pyinstaller --noconfirm --clean \
-            --name "PanthaTerminal" \
-            --onedir \
-            --collect-all rich \
-            --collect-all textual \
-            --collect-submodules rich._unicode_data \
-            app/main.py
-
-      - name: Create DMG
-        run: |
-          mkdir -p dmg/PanthaTerminal
-          cp -R dist/PanthaTerminal/* dmg/PanthaTerminal/
-
-          hdiutil create -volname "PanthaTerminal" \
-            -srcfolder dmg/PanthaTerminal \
-            -ov -format UDZO \
-            PanthaTerminal-macOS-${{ env.PANTHA_VERSION }}.dmg
-
-      - name: Upload macOS DMG
-        uses: actions/upload-artifact@v4
-        with:
-          name: PanthaTerminal-macOS-${{ env.PANTHA_VERSION }}
-          path: PanthaTerminal-macOS-*.dmg
