@@ -82,7 +82,7 @@ V1LE-CE
 ├── v1ledev          ● Main Developer
 ├── missusv1le       ● Assisted Developer
 
-Anyones Welcome To Join We Focus On A Free Stock Terminal          
+Anyones Welcome To Join We Focus On A Feature-Rich $0 Stock Terminal          
 
 ```
 
