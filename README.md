@@ -85,8 +85,8 @@ Future integrations may include:
 
 ```
 V1LE-CE
-├── v1ledev          # Core application
-├── missusv1le       # Terminal styling
+├── v1ledev          ● Main Developer
+├── missusv1le       # Assisted Developer
 
 Anyones Welcome To Join We Focus On A Free Stock Terminal          
 
