@@ -100,22 +100,6 @@ pantha-terminal/
 
 ---
 
-## 🔒 Security & Ethics
-
-Pantha Terminal:
-
-* ❌ Does **not** execute unauthorized trades
-* ❌ Does **not** bypass broker systems
-* ❌ Does **not** include hacking tools
-
-All market features are intended for:
-
-* Education
-* Simulation
-* Visualization
-
----
-
 ## 📌 Project Status
 
 🚧 **Early Development / Experimental**
