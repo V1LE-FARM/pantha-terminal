@@ -50,13 +50,7 @@ Pantha Terminal is being built to become a **stock & asset terminal**, similar i
 
 * 📊 Stock price lookup
 * 💱 Crypto asset tracking
-* 📰 Market metadata
-* 💼 Portfolio viewing
-* 🧪 Paper trading (simulated trades)
 * 📉 Indicators (SMA, RSI, VWAP)
-
-> ⚠️ **No real trading or real money execution is enabled.**
-> Pantha is focused on **education, simulation, and visualization**.
 
 ---
 
