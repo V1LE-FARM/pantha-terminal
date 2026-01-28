@@ -158,3 +158,6 @@ Stay sharp.
 Stay curious.
 
 **Pantha Terminal — Command the Market.**
+
+## License
+MIT © V1LE-CODE
