@@ -1,7 +1,7 @@
 #define MyAppName "Pantha Terminal"
 #define MyAppExeName "PanthaTerminal.exe"
 #define MyAppPublisher "Pantha"
-#define MyAppURL "https://github.com/V1LE-FARM/pantha-terminal"
+#define MyAppURL "https://github.com/V1LE-CODE/pantha-terminal"
 
 #define MyAppVersion GetEnv("PANTHA_VERSION")
 #if MyAppVersion == ""
