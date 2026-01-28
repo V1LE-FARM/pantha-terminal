@@ -104,9 +104,9 @@ You are free to use, modify, and extend Pantha Terminal — attribution apprecia
 
 ---
 
-## 🐾 Final Note
+## 🐈‍⬛️ Final Note
 
-Pantha Terminal is more than a terminal — it’s a foundation for a **modern market interface** built with personality, power, and precision.
+Pantha Terminal is more than a terminal — it’s a foundation for a **modern market interface** built with personality, power, and precision built by 2 hard working developers
 
 Stay sharp.
 Stay curious.
